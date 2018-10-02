@@ -16,6 +16,15 @@ int main(int argc, char const *argv[])
 
     image.flip_vertically();
     image.write_tga_file("output.tga");
+    Vec2 vec1(1.32f, 3.3f);
+
+
+    Vec2 vec2;
+    vec2.data[0] = 10.0f;
+    vec2.data[1] = 1.0f;
+
+    vec1 *= vec2;
+    std::cout << vec1.data[0] << "," << vec1.data[1] << std::endl;
 
     return 0;
 }
