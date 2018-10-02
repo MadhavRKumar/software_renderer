@@ -17,30 +17,32 @@ Model::Model(const char *filename)
 
     std::string line;
 
-    while (file >> line)
+    while (std::getline(file, line))
     {
         std::stringstream stream(line);
-        char trash;
 
-        if(!line.compare(0, 2, "v "))
-        {   
+        char trash;
+        if (!line.compare(0, 2, "v "))
+        {
+
             int index = 0;
             float val;
             Vec3 vert;
             stream >> trash;
-            while(stream >> val) {
+            while (stream >> val)
+            {
                 vert[index++] = val;
             }
 
             vertices.push_back(vert);
         }
-        else if(!line.compare(0, 2, "f "))
-        {   
+        else if (!line.compare(0, 2, "f "))
+        {
             stream >> trash;
             int vertTrash;
             int index;
             std::vector<int> face;
-            while(stream >> index >> trash >> vertTrash >> trash >> vertTrash)
+            while (stream >> index >> trash >> vertTrash >> trash >> vertTrash)
             {
                 index--;
                 face.push_back(index);
@@ -49,6 +51,9 @@ Model::Model(const char *filename)
             faces.push_back(face);
         }
     }
+
+    std::cout << "faces: " << nfaces() << std::endl;
+    std::cout << "vertices: " << nverts() << std::endl;
 }
 
 Model::~Model()
@@ -57,12 +62,12 @@ Model::~Model()
 
 int Model::nverts()
 {
-    return vertices.size;
+    return (int)vertices.size();
 }
 
 int Model::nfaces()
 {
-    return faces.size;
+    return (int)faces.size();
 }
 
 Vec3 Model::vertex(int i)

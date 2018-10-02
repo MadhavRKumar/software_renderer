@@ -7,7 +7,7 @@
 class Model {
     private:
         std::vector<Vec3> vertices;
-        std::vector<std::vector<int>> faces;
+        std::vector<std::vector<int> > faces;
 
     public:
         Model(const char *filename);
