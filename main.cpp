@@ -1,5 +1,6 @@
 #include "tgaimage.cpp"
 #include "geometry.h"
+#include "model.h"
 #include <cstdlib>
 
 const TGAColor white = TGAColor(255, 255,255,255);
@@ -8,14 +9,36 @@ const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color);
 
+Model model("face.obj");
+
 int main(int argc, char const *argv[])
 {
     TGAImage image(WIDTH, HEIGHT, TGAImage::RGB);
-    line(13, 20, 80, 40, image, white);
-    line(20, 13, 40, 80, image, white);
+
+    for (int i = 0; i < model.nfaces(); i++)
+    {
+        std::vector<int> face = model.face(i);
+
+        for(int j = 0; j < 3; j++)
+        {
+            Vec3 v0 = model.vertex(face[j]);
+            Vec3 v1 = model.vertex(face[(j+1)%3]);
+
+            int x0 = (v0.x + 1.0f)*WIDTH/2.0f;
+            int y0 = (v0.y + 1.0f)*HEIGHT/2.0f;
+
+
+            int x1 = (v1.x + 1.0f)*WIDTH/2.0f;
+            int y1 = (v1.y + 1.0f)*HEIGHT/2.0f;
+
+            line(x0, y0, x1, y1, image, white);
+        }
+    }
 
     image.flip_vertically();
     image.write_tga_file("output.tga");
+    
+
 
     return 0;
 }
