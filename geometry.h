@@ -31,21 +31,12 @@ struct Vector<T, 2>
         };
     };
 
-    Vector()
+    Vector(T _x = 0, T _y = 0) : x(_x), y(_y)
     {
-        x = 0.0f;
-        y = 0.0f;
     }
 
-    Vector(T _x, T _y)
+    Vector(T f) : x(f), y(f)
     {
-        x = _x;
-        y = _y;
-    }
-
-    Vector(T f)
-    {
-        x = y = f;
     }
 
     T &operator[](int i)
@@ -65,23 +56,12 @@ struct Vector<T, 3>
         };
     };
 
-    Vector()
+    Vector(T _x = 0, T _y = 0, T _z = 0) : x(_x), y(_y), z(_z)
     {
-        x = 0.0f;
-        y = 0.0f;
-        z = 0.0f;
     }
 
-    Vector(T _x, T _y, T _z)
+    Vector(T f) : x(f), y(f), z(f)
     {
-        x = _x;
-        y = _y;
-        z = _z;
-    }
-
-    Vector(T f)
-    {
-        x = y = z = f;
     }
 
     T &operator[](int i)
@@ -101,33 +81,16 @@ struct Vector<T, 4>
         };
     };
 
-    Vector()
+    Vector(T _x = 0, T _y = 0, T _z = 0, T _w = 0) : x(_x), y(_y), z(_z), w(_w)
     {
-        x = 0.0f;
-        y = 0.0f;
-        z = 0.0f;
-        w = 0.0f;
     }
 
-    Vector(T _x, T _y, T _z, T _w)
+    Vector(T f) : x(f), y(f), z(f), w(f)
     {
-        x = _x;
-        y = _y;
-        z = _z;
-        w = _w;
     }
 
-    Vector(Vector<T, 3> vec3, T _w)
+    Vector(Vector<T, 3> vec3, T _w) : x(vec3.x), y(vec3.y), z(vec3.z), w(_w)
     {
-        x = vec3.x;
-        y = vec3.y;
-        z = vec3.z;
-        w = _w;
-    }
-
-    Vector(T f)
-    {
-        x = y = z = w = f;
     }
 
     T &operator[](int i)
@@ -222,7 +185,7 @@ std::ostream &operator<<(std::ostream &os, Vector<T, n> a)
     os << "(";
     for (int i = 0; i < n; i++)
     {
-        if(i != 0)
+        if (i != 0)
         {
             os << ",";
         }
