@@ -18,11 +18,11 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < model.nfaces(); i++)
     {
         std::vector<int> face = model.face(i);
-
+        
         for(int j = 0; j < 3; j++)
         {
-            Vec3 v0 = model.vertex(face[j]);
-            Vec3 v1 = model.vertex(face[(j+1)%3]);
+            Vec3f v0 = model.vertex(face[j]);
+            Vec3f v1 = model.vertex(face[(j+1)%3]);
 
             int x0 = (v0.x + 1.0f)*WIDTH/2.0f;
             int y0 = (v0.y + 1.0f)*HEIGHT/2.0f;

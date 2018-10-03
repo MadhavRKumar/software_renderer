@@ -27,7 +27,7 @@ Model::Model(const char *filename)
 
             int index = 0;
             float val;
-            Vec3 vert;
+            Vec3f vert;
             stream >> trash;
             while (stream >> val)
             {
@@ -70,7 +70,7 @@ int Model::nfaces()
     return (int)faces.size();
 }
 
-Vec3 Model::vertex(int i)
+Vec3f Model::vertex(int i)
 {
     return vertices[i];
 }

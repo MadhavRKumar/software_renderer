@@ -1,29 +1,33 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-template <int n>
+template <typename T, int n>
 struct Vector
 {
-    float data[n];
+    T data[n];
 
-    float &operator[](int i)
+    T &operator[](int i)
     {
         return data[i];
     }
 };
 
-typedef Vector<2> Vec2;
-typedef Vector<3> Vec3;
-typedef Vector<4> Vec4;
+typedef Vector<float, 2> Vec2f;
+typedef Vector<float, 3> Vec3f;
+typedef Vector<float, 4> Vec4f;
 
-template <>
-struct Vector<2>
+typedef Vector<int, 2> Vec2i;
+typedef Vector<int, 3> Vec3i;
+typedef Vector<int, 4> Vec4i;
+
+template <typename T>
+struct Vector<T, 2>
 {
     union {
-        float data[2];
+        T data[2];
         struct
         {
-            float x, y;
+            T x, y;
         };
     };
 
@@ -33,31 +37,31 @@ struct Vector<2>
         y = 0.0f;
     }
 
-    Vector(float _x, float _y)
+    Vector(T _x, T _y)
     {
         x = _x;
         y = _y;
     }
 
-    Vector(float f)
+    Vector(T f)
     {
         x = y = f;
     }
 
-    float &operator[](int i)
+    T &operator[](int i)
     {
         return data[i];
     }
 };
 
-template <>
-struct Vector<3>
+template <typename T>
+struct Vector<T, 3>
 {
     union {
-        float data[3];
+        T data[3];
         struct
         {
-            float x, y, z;
+            T x, y, z;
         };
     };
 
@@ -68,32 +72,32 @@ struct Vector<3>
         z = 0.0f;
     }
 
-    Vector(float _x, float _y, float _z)
+    Vector(T _x, T _y, T _z)
     {
         x = _x;
         y = _y;
         z = _z;
     }
 
-    Vector(float f)
+    Vector(T f)
     {
         x = y = z = f;
     }
 
-    float &operator[](int i)
+    T &operator[](int i)
     {
         return data[i];
     }
 };
 
-template <>
-struct Vector<4>
+template <typename T>
+struct Vector<T, 4>
 {
     union {
-        float data[4];
+        T data[4];
         struct
         {
-            float x, y, z, w;
+            T x, y, z, w;
         };
     };
 
@@ -105,7 +109,7 @@ struct Vector<4>
         w = 0.0f;
     }
 
-    Vector(float _x, float _y, float _z, float _w)
+    Vector(T _x, T _y, T _z, T _w)
     {
         x = _x;
         y = _y;
@@ -113,7 +117,7 @@ struct Vector<4>
         w = _w;
     }
 
-    Vector(Vec3 vec3, float _w)
+    Vector(Vector<T, 3> vec3, T _w)
     {
         x = vec3.x;
         y = vec3.y;
@@ -121,22 +125,22 @@ struct Vector<4>
         w = _w;
     }
 
-    Vector(float f)
+    Vector(T f)
     {
         x = y = z = w = f;
     }
 
-    float &operator[](int i)
+    T &operator[](int i)
     {
         return data[i];
     }
 };
 
 // Addition
-template <int n>
-Vector<n> operator+(Vector<n> a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> operator+(Vector<T, n> a, Vector<T, n> b)
 {
-    Vector<n> answer = a;
+    Vector<T, n> answer = a;
     for (int i = 0; i < n; i++)
     {
         answer.data[i] = a.data[i] + b.data[i];
@@ -145,18 +149,18 @@ Vector<n> operator+(Vector<n> a, Vector<n> b)
     return answer;
 };
 
-template <int n>
-Vector<n> &operator+=(Vector<n> &a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> &operator+=(Vector<T, n> &a, Vector<T, n> b)
 {
     a = a + b;
     return a;
 };
 
 // Subtraction
-template <int n>
-Vector<n> operator-(Vector<n> a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> operator-(Vector<T, n> a, Vector<T, n> b)
 {
-    Vector<n> answer = a;
+    Vector<T, n> answer = a;
     for (int i = 0; i < n; i++)
     {
         answer.data[i] = a.data[i] - b.data[i];
@@ -165,18 +169,18 @@ Vector<n> operator-(Vector<n> a, Vector<n> b)
     return answer;
 };
 
-template <int n>
-Vector<n> &operator-=(Vector<n> &a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> &operator-=(Vector<T, n> &a, Vector<T, n> b)
 {
     a = a - b;
     return a;
 };
 
 // Multiplication
-template <int n>
-Vector<n> operator*(Vector<n> a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> operator*(Vector<T, n> a, Vector<T, n> b)
 {
-    Vector<n> answer = a;
+    Vector<T, n> answer = a;
     for (int i = 0; i < n; i++)
     {
         answer.data[i] = a.data[i] * b.data[i];
@@ -185,18 +189,18 @@ Vector<n> operator*(Vector<n> a, Vector<n> b)
     return answer;
 };
 
-template <int n>
-Vector<n> &operator*=(Vector<n> &a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> &operator*=(Vector<T, n> &a, Vector<T, n> b)
 {
     a = a * b;
     return a;
 };
 
 // Division
-template <int n>
-Vector<n> operator/(Vector<n> a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> operator/(Vector<T, n> a, Vector<T, n> b)
 {
-    Vector<n> answer = a;
+    Vector<T, n> answer = a;
     for (int i = 0; i < n; i++)
     {
         answer.data[i] = a.data[i] / b.data[i];
@@ -205,15 +209,15 @@ Vector<n> operator/(Vector<n> a, Vector<n> b)
     return answer;
 };
 
-template <int n>
-Vector<n> &operator/=(Vector<n> &a, Vector<n> b)
+template <typename T, int n>
+Vector<T, n> &operator/=(Vector<T, n> &a, Vector<T, n> b)
 {
     a = a / b;
     return a;
 };
 
-template <int n>
-std::ostream &operator<<(std::ostream &os, Vector<n> a)
+template <typename T, int n>
+std::ostream &operator<<(std::ostream &os, Vector<T, n> a)
 {
     os << "(";
     for (int i = 0; i < n; i++)
