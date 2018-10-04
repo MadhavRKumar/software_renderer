@@ -65,6 +65,11 @@ struct Vector<T, 3>
     {
     }
 
+    Vector(Vector<T,2> A, T _z) : x(A.x), y(A.y), z(_z)
+    {
+        
+    }
+
     Vector<T, 3> cross(Vector<T, 3> t)
     {
         Vector<T, 3> vec(y * t.z - z * t.y, z * t.x - x * t.z, x * t.y - y - t.z);
