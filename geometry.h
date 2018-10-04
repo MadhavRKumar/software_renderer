@@ -1,5 +1,6 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
+#include <math.h>
 
 template <typename T, int n>
 struct Vector
@@ -62,6 +63,13 @@ struct Vector<T, 3>
 
     Vector(T f) : x(f), y(f), z(f)
     {
+    }
+
+    Vector<T, 3> cross(Vector<T, 3> t)
+    {
+        Vector<T, 3> vec(y * t.z - z * t.y, z * t.x - x * t.z, x * t.y - y - t.z);
+
+        return vec;
     }
 
     T &operator[](int i)
@@ -192,6 +200,28 @@ std::ostream &operator<<(std::ostream &os, Vector<T, n> a)
         os << a[i];
     }
     os << ")" << std::endl;
+}
+
+template <typename T, int n>
+float dot(Vector<T, n> a, Vector<T, n> b)
+{
+    float sum = 0.0f;
+    for (int i = 0; i < n; i++)
+    {
+        sum += a[i] * b[i];
+    }
+    return sum;
+}
+
+template <typename T, int n>
+float magnitude(Vector<T, n> a)
+{
+    float sum = 0.0f;
+    for (int i = 0; i < n; i++)
+    {
+        sum += a[i] * a[i];
+    }
+    return sqrt(sum);
 }
 
 #endif
