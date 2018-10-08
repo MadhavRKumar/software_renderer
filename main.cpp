@@ -20,17 +20,26 @@ Model model("face.obj");
 int main(int argc, char const *argv[])
 {
     TGAImage image(WIDTH, HEIGHT, TGAImage::RGB);
+    Vec3f light_dir(0.0f, 0.0f, -1.0f);
     for (int i = 0; i < model.nfaces(); i++)
     {
         std::vector<int> face = model.face(i);
         Vec2i screen_coords[3];
+        Vec3f world_coords[3];
         for (int j = 0; j < 3; j++)
         {
             Vec3f v0 = model.vertex(face[j]);
+            world_coords[j] = v0;
             screen_coords[j] = Vec2i((v0.x + 1.0f) * WIDTH / 2.0, (v0.y + 1.0f) * HEIGHT / 2.0f);
         }
 
-        triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(rand()%255,rand()%255, rand()%255, 255));
+        Vec3f normal = (world_coords[2] - world_coords[0]).cross(world_coords[1] - world_coords[0]);
+        normalize(normal);
+        std::cout << magnitude(normal) << std::endl;
+        float intensity = dot(normal, light_dir);
+        if(intensity >0){
+            triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+        }
     }
 
     image.flip_vertically();
@@ -96,11 +105,11 @@ bool isInTriangle(Vec2i A, Vec2i B, Vec2i C, Vec2i P)
 {
     Vec3f UV = barycenter(A, B, C, P);
 
-    return(UV.x >= 0 && UV.y >= 0 && UV.z >= 0);
-    
+    return (UV.x >= 0 && UV.y >= 0 && UV.z >= 0);
 }
 
-Vec3f barycenter(Vec2i A, Vec2i B, Vec2i C, Vec2i P) {
+Vec3f barycenter(Vec2i A, Vec2i B, Vec2i C, Vec2i P)
+{
     Vec3i AB(B - A, 1);
     Vec3i AC(C - A, 1);
     Vec3i PA(A - P, 1);
@@ -110,8 +119,7 @@ Vec3f barycenter(Vec2i A, Vec2i B, Vec2i C, Vec2i P) {
 
     Vec3f N = X.cross(Y);
 
-    Vec3f UV(1.0f - (N.x + N.y)/N.z, N.x/N.z, N.y/N.z);
+    Vec3f UV(1.0f - (N.x + N.y) / N.z, N.x / N.z, N.y / N.z);
 
     return UV;
-
 }

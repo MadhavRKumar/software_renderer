@@ -65,14 +65,13 @@ struct Vector<T, 3>
     {
     }
 
-    Vector(Vector<T,2> A, T _z) : x(A.x), y(A.y), z(_z)
+    Vector(Vector<T, 2> A, T _z) : x(A.x), y(A.y), z(_z)
     {
-
     }
 
     Vector<T, 3> cross(Vector<T, 3> t)
     {
-        Vector<T, 3> vec(y * t.z - z * t.y, z * t.x - x * t.z, x * t.y - y *t.x);
+        Vector<T, 3> vec(y * t.z - z * t.y, z * t.x - x * t.z, x * t.y - y * t.x);
 
         return vec;
     }
@@ -227,6 +226,16 @@ float magnitude(Vector<T, n> a)
         sum += a[i] * a[i];
     }
     return sqrt(sum);
+}
+
+template <typename T, int n>
+void normalize(Vector<T, n> &a)
+{
+    float mag = magnitude(a);
+    for (int i = 0; i < n; i++)
+    {
+        a[i] /= mag;
+    }
 }
 
 #endif
