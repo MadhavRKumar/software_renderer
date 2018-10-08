@@ -13,31 +13,25 @@ const unsigned int HEIGHT = 800;
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color);
 void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color);
 bool isInTriangle(Vec2i A, Vec2i B, Vec2i C, Vec2i P);
+Vec3f barycenter(Vec2i A, Vec2i B, Vec2i C, Vec2i P);
 
 Model model("face.obj");
 
 int main(int argc, char const *argv[])
 {
     TGAImage image(WIDTH, HEIGHT, TGAImage::RGB);
-    triangle(Vec2i(10,10), Vec2i(100, 30), Vec2i(190, 160), image, white);
-    // for (int i = 0; i < model.nfaces(); i++)
-    // {
-    //     std::vector<int> face = model.face(i);
+    for (int i = 0; i < model.nfaces(); i++)
+    {
+        std::vector<int> face = model.face(i);
+        Vec2i screen_coords[3];
+        for (int j = 0; j < 3; j++)
+        {
+            Vec3f v0 = model.vertex(face[j]);
+            screen_coords[j] = Vec2i((v0.x + 1.0f) * WIDTH / 2.0, (v0.y + 1.0f) * HEIGHT / 2.0f);
+        }
 
-    //     for (int j = 0; j < 3; j++)
-    //     {
-    //         Vec3f v0 = model.vertex(face[j]);
-    //         Vec3f v1 = model.vertex(face[(j + 1) % 3]);
-
-    //         int x0 = (v0.x + 1.0f) * WIDTH / 2.0f;
-    //         int y0 = (v0.y + 1.0f) * HEIGHT / 2.0f;
-
-    //         int x1 = (v1.x + 1.0f) * WIDTH / 2.0f;
-    //         int y1 = (v1.y + 1.0f) * HEIGHT / 2.0f;
-
-    //         line(x0, y0, x1, y1, image, white);
-    //     }
-    // }
+        triangle(screen_coords[0], screen_coords[1], screen_coords[2], image, TGAColor(rand()%255,rand()%255, rand()%255, 255));
+    }
 
     image.flip_vertically();
     image.write_tga_file("output.tga");
@@ -100,6 +94,13 @@ void triangle(Vec2i t0, Vec2i t1, Vec2i t2, TGAImage &image, TGAColor color)
 
 bool isInTriangle(Vec2i A, Vec2i B, Vec2i C, Vec2i P)
 {
+    Vec3f UV = barycenter(A, B, C, P);
+
+    return(UV.x >= 0 && UV.y >= 0 && UV.z >= 0);
+    
+}
+
+Vec3f barycenter(Vec2i A, Vec2i B, Vec2i C, Vec2i P) {
     Vec3i AB(B - A, 1);
     Vec3i AC(C - A, 1);
     Vec3i PA(A - P, 1);
@@ -108,12 +109,9 @@ bool isInTriangle(Vec2i A, Vec2i B, Vec2i C, Vec2i P)
     Vec3f Y(AB.y, AC.y, PA.y);
 
     Vec3f N = X.cross(Y);
-    //std::cout << N << std::endl;
+
     Vec3f UV(1.0f - (N.x + N.y)/N.z, N.x/N.z, N.y/N.z);
-    // if(UV.x >= 0 && UV.y >= 0 && UV.z >= 0)
-    // {
-    //     std::cout << UV << std::endl;
-    // }
-    return(UV.x >= 0 && UV.y >= 0 && UV.z >= 0);
-    
+
+    return UV;
+
 }
