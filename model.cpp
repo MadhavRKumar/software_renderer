@@ -4,7 +4,7 @@
 #include <sstream>
 #include "model.h"
 
-Model::Model(const char *filename)
+Model::Model(const char *filename) : vertices(), faces()
 {
     std::ifstream file;
     file.open(filename);
@@ -39,13 +39,16 @@ Model::Model(const char *filename)
         else if (!line.compare(0, 2, "f "))
         {
             stream >> trash;
+            int vt;
             int vertTrash;
             int index;
-            std::vector<int> face;
-            while (stream >> index >> trash >> vertTrash >> trash >> vertTrash)
+            std::vector<Vec2i> face;
+            //                 v        /       vt            /         vn
+            while (stream >> index >> trash >> vt >> trash >> vertTrash)
             {
+                Vec2i vec(index, vt);
                 index--;
-                face.push_back(index);
+                face.push_back(vec);
             }
 
             faces.push_back(face);
@@ -75,7 +78,7 @@ Vec3f Model::vertex(int i)
     return vertices[i];
 }
 
-std::vector<int> Model::face(int idx)
+std::vector<Vec2i> Model::face(int idx)
 {
     return faces[idx];
 }

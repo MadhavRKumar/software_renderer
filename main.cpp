@@ -27,12 +27,12 @@ int main(int argc, char const *argv[])
     }
     for (int i = 0; i < model.nfaces(); i++)
     {
-        std::vector<int> face = model.face(i);
+        std::vector<Vec2i> face = model.face(i);
         Vec3f screen_coords[3];
         Vec3f world_coords[3];
         for (int j = 0; j < 3; j++)
         {
-            Vec3f v0 = model.vertex(face[j]);
+            Vec3f v0 = model.vertex(face[j][0]);
             world_coords[j] = v0;
             screen_coords[j] = Vec3f((v0.x + 1.0f) * WIDTH / 2.0, (v0.y + 1.0f) * HEIGHT / 2.0f, v0.z);
         }
