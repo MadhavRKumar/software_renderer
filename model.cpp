@@ -4,7 +4,7 @@
 #include <sstream>
 #include "model.h"
 
-Model::Model(const char *filename) : vertices(), faces()
+Model::Model(const char *filename) : vertices(), faces(), uvs()
 {
     std::ifstream file;
     file.open(filename);
@@ -36,6 +36,18 @@ Model::Model(const char *filename) : vertices(), faces()
 
             vertices.push_back(vert);
         }
+        else if (!line.compare(0, 2, "vt"))
+        {
+            stream >> trash >> trash;
+            float val;
+            Vec2f vecText;
+            for (int i = 0; i < 2; i++)
+            {
+                stream >> vecText[i];
+            }
+
+            uvs.push_back(vecText);
+        }
         else if (!line.compare(0, 2, "f "))
         {
             stream >> trash;
@@ -46,8 +58,9 @@ Model::Model(const char *filename) : vertices(), faces()
             //                 v        /       vt            /         vn
             while (stream >> index >> trash >> vt >> trash >> vertTrash)
             {
-                Vec2i vec(index, vt);
+                vt--;
                 index--;
+                Vec2i vec(index, vt);
                 face.push_back(vec);
             }
 
@@ -55,12 +68,36 @@ Model::Model(const char *filename) : vertices(), faces()
         }
     }
 
+    loadTexture(filename, "_diffuse.tga", diffuseMap);
+
     std::cout << "faces: " << nfaces() << std::endl;
     std::cout << "vertices: " << nverts() << std::endl;
+    std::cout << "uvs: " << uvs.size() << std::endl;
 }
 
 Model::~Model()
 {
+}
+
+void Model::loadTexture(std::string filename, std::string suffix, TGAImage &texture)
+{
+    int dot = filename.find_last_of(".");
+    std::string texname = (filename.substr(0, dot) + suffix);
+    if (!texture.read_tga_file(texname.c_str()))
+    {
+        std::cerr << texname << " failed to load" << std::endl;
+    }
+    else
+    {
+        std::cerr << texname << " loaded successfully" << std::endl;
+        texture.flip_vertically();
+    }
+}
+
+TGAColor Model::diffuse(Vec2f uv) 
+{
+    Vec2i uvi(uv[0] * diffuseMap.get_width(), uv[1] * diffuseMap.get_height());
+    return diffuseMap.get(uvi.x, uvi.y);
 }
 
 int Model::nverts()
@@ -81,4 +118,9 @@ Vec3f Model::vertex(int i)
 std::vector<Vec2i> Model::face(int idx)
 {
     return faces[idx];
+}
+
+Vec2f Model::uv(int i, int vert)
+{
+    return uvs[faces[i][vert][1]];
 }

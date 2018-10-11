@@ -12,17 +12,18 @@ const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 800;
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color);
-void triangle(Vec3f t0, Vec3f t1, Vec3f t2, float *zbuffer, TGAImage &image, TGAColor color);
+void triangle(Vec3f *pts, Vec2f *vts, float *zbuffer, TGAImage &image, float intensity);
 Vec3f barycenter(Vec3f A, Vec3f B, Vec3f C, Vec3f P);
 
-Model model("face.obj");
+Model model("african_head.obj");
 
 int main(int argc, char const *argv[])
 {
     TGAImage image(WIDTH, HEIGHT, TGAImage::RGB);
     Vec3f light_dir(0.0f, 0.0f, -1.0f);
-    float *zbuffer = new float[WIDTH*HEIGHT];
-    for(int i = 0; i < WIDTH*HEIGHT; i++) {
+    float *zbuffer = new float[WIDTH * HEIGHT];
+    for (int i = 0; i < WIDTH * HEIGHT; i++)
+    {
         zbuffer[i] = -std::numeric_limits<float>::max();
     }
     for (int i = 0; i < model.nfaces(); i++)
@@ -30,11 +31,15 @@ int main(int argc, char const *argv[])
         std::vector<Vec2i> face = model.face(i);
         Vec3f screen_coords[3];
         Vec3f world_coords[3];
+        Vec2f vert_texts[3];
         for (int j = 0; j < 3; j++)
         {
             Vec3f v0 = model.vertex(face[j][0]);
+            Vec2f vt = model.uv(i, j);
+     
             world_coords[j] = v0;
             screen_coords[j] = Vec3f((v0.x + 1.0f) * WIDTH / 2.0, (v0.y + 1.0f) * HEIGHT / 2.0f, v0.z);
+            vert_texts[j] = vt;
         }
 
         Vec3f normal = (world_coords[2] - world_coords[0]).cross(world_coords[1] - world_coords[0]);
@@ -42,7 +47,7 @@ int main(int argc, char const *argv[])
         float intensity = dot(normal, light_dir);
         if (intensity >= 0)
         {
-            triangle(screen_coords[0], screen_coords[1], screen_coords[2], zbuffer, image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+            triangle(screen_coords, vert_texts, zbuffer, image, intensity);
         }
     }
 
@@ -84,28 +89,42 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color)
     }
 }
 
-void triangle(Vec3f t0, Vec3f t1, Vec3f t2, float *zbuffer, TGAImage &image, TGAColor color)
+void triangle(Vec3f *pts, Vec2f *vts, float *zbuffer, TGAImage &image, float intensity)
 {
-    int maxX = std::min(image.get_width() - 1.0f, std::max(t0.x, std::max(t1.x, t2.x)));
-    int maxY = std::min(image.get_height() - 1.0f, std::max(t0.y, std::max(t1.y, t2.y)));
+    float maxX = -std::numeric_limits<float>::max();
+    float maxY = -std::numeric_limits<float>::max();
+    float minX = std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
+    for (int i = 0; i < 3; i++)
+    {
+        maxX = std::min(image.get_width() - 1.0f, std::max(maxX, pts[i].x));
+        maxY = std::min(image.get_height() - 1.0f, std::max(maxY, pts[i].y));
 
-    int minX = std::max(0.0f, std::min(t0.x, std::min(t1.x, t2.x)));
-    int minY = std::max(0.0f, std::min(t0.y, std::min(t1.y, t2.y)));
-
+        minX = std::max(0.0f, std::min(minX, pts[i].x));
+        minY = std::max(0.0f, std::min(minY, pts[i].y));
+    }
     for (int x = minX; x <= maxX; x++)
     {
         for (int y = minY; y <= maxY; y++)
         {
             Vec3f p(x, y);
-            Vec3f UV = barycenter(t0, t1, t2, p);
-            float z = 0;
+            Vec3f UV = barycenter(pts[0], pts[1], pts[2], p);
             if (UV.x >= 0 && UV.y >= 0 && UV.z >= 0)
-            {
-                Vec3f mul(t0.z, t1.z, t2.z);
-                z += (t0.z * UV.x) + (t1.z * UV.y) + (t2.z * UV.z);
-                if(zbuffer[int(x+y*WIDTH)] < z) {
-                    zbuffer[int(x+y*WIDTH)] = z;
-                    image.set(x, y, color);
+            {   
+                float u, v, z;
+                u = v = z = 0.0f;
+                for (int i = 0; i < 3; i++)
+                {
+                    u += vts[i][0] * UV[i];
+                    v += vts[i][1] * UV[i];
+                    z += pts[i][2] * UV[i];
+                }
+                TGAColor diff = model.diffuse(Vec2f(u, v));
+                TGAColor c(diff.r * intensity, diff.g * intensity, diff.b *intensity, 255);
+                if (zbuffer[int(x + y * WIDTH)] < z)
+                {
+                    zbuffer[int(x + y * WIDTH)] = z;
+                    image.set(x, y, c);
                 }
             }
         }
