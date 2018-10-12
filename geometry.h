@@ -238,4 +238,75 @@ void normalize(Vector<T, n> &a)
     }
 }
 
+//////////////////// Matrix ///////////////
+
+template <int m, int n>
+struct Matrix
+{
+    float data[m][n];
+
+    Matrix(float f = 0.0f)
+    {
+        for (int i = 0; i < m; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                data[i][j] = 0.0f;
+            }
+        }
+        if (f == 1.0f)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                data[i][i] = f;
+            }
+        }
+    }
+
+    float *operator[](int i)
+    {
+        return data[i];
+    }
+};
+
+typedef Matrix<3, 3> Mat3;
+typedef Matrix<4, 3> Mat4;
+
+template <int m, int n, int p>
+Matrix<m, p> operator*(Matrix<n, m> a, Matrix<m, p> b)
+{
+    Matrix<m, p> c;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < p; j++)
+        {
+            for (int k = 0; k < m; k++)
+            {
+                c[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    return c;
+}
+
+template <int n, int m>
+std::ostream &operator<<(std::ostream &os, Matrix<n, m> a)
+{
+    for (int j = 0; j < n; j++)
+    {
+
+        os << "(";
+        for (int i = 0; i < m; i++)
+        {
+            if (i != 0)
+            {
+                os << ",";
+            }
+            os << a[j][i];
+        }
+        os << ")" << std::endl;
+    }
+}
+
 #endif
