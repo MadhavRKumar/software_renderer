@@ -4,7 +4,7 @@
 #include <sstream>
 #include "model.h"
 
-Model::Model(const char *filename) : vertices(), faces(), uvs()
+Model::Model(const char *filename) : vertices(), faces(), uvs(), normals()
 {
     std::ifstream file;
     file.open(filename);
@@ -39,7 +39,6 @@ Model::Model(const char *filename) : vertices(), faces(), uvs()
         else if (!line.compare(0, 2, "vt"))
         {
             stream >> trash >> trash;
-            float val;
             Vec2f vecText;
             for (int i = 0; i < 2; i++)
             {
@@ -48,19 +47,32 @@ Model::Model(const char *filename) : vertices(), faces(), uvs()
 
             uvs.push_back(vecText);
         }
+        else if (!line.compare(0, 2, "vn"))
+        {
+            stream >> trash >> trash;
+            Vec3f vertNorm;
+            for(int i = 0; i < 3; i++)
+            {
+                stream >> vertNorm[i];
+            }
+            normalize(vertNorm);
+            normals.push_back(vertNorm);
+
+        }
         else if (!line.compare(0, 2, "f "))
         {
             stream >> trash;
             int vt;
-            int vertTrash;
+            int vn;
             int index;
-            std::vector<Vec2i> face;
-            //                 v        /       vt            /         vn
-            while (stream >> index >> trash >> vt >> trash >> vertTrash)
+            std::vector<Vec3i> face;
+            //                 v        /      vt      /      vn
+            while (stream >> index >> trash >> vt >> trash >> vn)
             {
                 vt--;
                 index--;
-                Vec2i vec(index, vt);
+                vn--;
+                Vec3i vec(index, vt, vn);
                 face.push_back(vec);
             }
 
@@ -73,6 +85,7 @@ Model::Model(const char *filename) : vertices(), faces(), uvs()
     std::cout << "faces: " << nfaces() << std::endl;
     std::cout << "vertices: " << nverts() << std::endl;
     std::cout << "uvs: " << uvs.size() << std::endl;
+    std::cout << "normals: " << normals.size() << std::endl;
 }
 
 Model::~Model()
@@ -94,7 +107,7 @@ void Model::loadTexture(std::string filename, std::string suffix, TGAImage &text
     }
 }
 
-TGAColor Model::diffuse(Vec2f uv) 
+TGAColor Model::diffuse(Vec2f uv)
 {
     Vec2i uvi(uv[0] * diffuseMap.get_width(), uv[1] * diffuseMap.get_height());
     return diffuseMap.get(uvi.x, uvi.y);
@@ -115,7 +128,7 @@ Vec3f Model::vertex(int i)
     return vertices[i];
 }
 
-std::vector<Vec2i> Model::face(int idx)
+std::vector<Vec3i> Model::face(int idx)
 {
     return faces[idx];
 }
@@ -123,4 +136,9 @@ std::vector<Vec2i> Model::face(int idx)
 Vec2f Model::uv(int i, int vert)
 {
     return uvs[faces[i][vert][1]];
+}
+
+Vec3f Model::normal(int i, int vert)
+{
+    return normals[faces[i][vert][2]];
 }
